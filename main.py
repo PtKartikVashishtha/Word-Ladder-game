@@ -2,11 +2,14 @@ import streamlit as st
 import pandas as pd
 from collections import deque
 
+# Path to the CSV file (Make sure this file is included in your deployed folder)
+CSV_FILE_PATH = "word_list.csv"  # Change this to the actual file name
+
 # Load word list from CSV (using st.cache_data)
 @st.cache_data  # Cache the data to avoid reloading each time
-def load_word_list(file_path):
+def load_word_list():
     # Read the CSV file
-    df = pd.read_csv(file_path)
+    df = pd.read_csv(CSV_FILE_PATH)
     
     # Assuming words are in a column named 'word'
     # You can adjust this column name based on your CSV structure
@@ -47,30 +50,24 @@ def bfs(start, end, word_list):
 # Streamlit UI
 st.title("Word Ladder Game")
 
-# File uploader for the CSV file
-uploaded_file = st.file_uploader("Upload a CSV file containing the word list", type=["csv"])
+# Load word list from the local CSV file
+word_list = load_word_list()
 
-if uploaded_file is not None:
-    # Load word list from the uploaded CSV file
-    word_list = load_word_list(uploaded_file)
+# User inputs
+word_length = st.number_input("Enter desired word length:", min_value=3, max_value=10, value=5)
+start_word = st.text_input(f"Enter start word ({word_length} letters):").lower()
+end_word = st.text_input(f"Enter end word ({word_length} letters):").lower()
 
-    # User inputs
-    word_length = st.number_input("Enter desired word length:", min_value=3, max_value=10, value=5)
-    start_word = st.text_input(f"Enter start word ({word_length} letters):").lower()
-    end_word = st.text_input(f"Enter end word ({word_length} letters):").lower()
-
-    # Check inputs
-    if start_word and end_word:
-        if len(start_word) != word_length or len(end_word) != word_length:
-            st.error(f"Both words must be exactly {word_length} letters long.")
-        elif start_word not in word_list or end_word not in word_list:
-            st.error("One or both words are not valid in the dictionary.")
+# Check inputs
+if start_word and end_word:
+    if len(start_word) != word_length or len(end_word) != word_length:
+        st.error(f"Both words must be exactly {word_length} letters long.")
+    elif start_word not in word_list or end_word not in word_list:
+        st.error("One or both words are not valid in the dictionary.")
+    else:
+        # Run BFS and show results
+        path = bfs(start_word, end_word, word_list)
+        if path:
+            st.success(f"Shortest transformation: {' -> '.join(path)}")
         else:
-            # Run BFS and show results
-            path = bfs(start_word, end_word, word_list)
-            if path:
-                st.success(f"Shortest transformation: {' -> '.join(path)}")
-            else:
-                st.warning("No valid transformation path found.")
-else:
-    st.warning("Please upload a CSV file to start the game.")
+            st.warning("No valid transformation path found.")
