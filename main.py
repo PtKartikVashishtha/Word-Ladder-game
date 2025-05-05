@@ -3,7 +3,7 @@ import pandas as pd
 from collections import deque
 
 # Path to the CSV file (Make sure this file is included in your deployed folder)
-CSV_FILE_PATH = "word_list.csv"  # Change this to the actual file name
+CSV_FILE_PATH = "unigram_freq.csv"  # Change this to the actual file name
 
 # Load word list from CSV (using st.cache_data)
 @st.cache_data  # Cache the data to avoid reloading each time
